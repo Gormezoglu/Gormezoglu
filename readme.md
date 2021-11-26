@@ -1,8 +1,15 @@
-### Hi there, I'm Melih  
+### Hi there, I'm Melih 👋
 
-I'm MSc student in Information Systems at METU. I love to learn new things daily. Developing skills on data oriented tasks. 
+## Life-long Learner from Ankara / Turkey
+
+I'm MSc student in Information Systems at METU. I love to learn new things daily. Developing skills on data-oriented tasks. 
 
 🌱 Currently, learning Django Framework
+
+
+🎹 Electronic Music Producer
+🥁 Drummer
+💰 10 years of experience in finance   
 
 
 ## Languages & Tools
