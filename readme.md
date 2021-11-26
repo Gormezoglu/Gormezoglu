@@ -1,4 +1,4 @@
-### Hi there, I'm Melih  <img align="left" alt="wave" width="26px" src="https://c.tenor.com/4BkYeeOwEUgAAAAC/waving-wave.gif" />
+### Hi there, I'm Melih  <img align="right" alt="wave" width="26px" src="https://c.tenor.com/4BkYeeOwEUgAAAAC/waving-wave.gif" />
 
 I'm MSc student in Information Systems at METU. I love to learn new things daily. Developing skills on data oriented tasks.
 
