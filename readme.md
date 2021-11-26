@@ -1,6 +1,6 @@
 ### Hi there, I'm Melih 👋
 
-## Life-long Learner from Ankara / Turkey
+#### Life-long Learner from Ankara / Turkey
 
 I'm MSc student in Information Systems at METU. I love to learn new things daily. Developing skills on data-oriented tasks. 
 
