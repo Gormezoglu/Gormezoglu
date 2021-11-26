@@ -1,8 +1,8 @@
-### Hi there, I'm Melih  <img align="right" alt="wave" width="26px" src="https://c.tenor.com/4BkYeeOwEUgAAAAC/waving-wave.gif" />
+### Hi there, I'm Melih  
 
-I'm MSc student in Information Systems at METU. I love to learn new things daily. Developing skills on data oriented tasks.
+I'm MSc student in Information Systems at METU. I love to learn new things daily. Developing skills on data oriented tasks. 
 
-Currently, learning Django Framework
+🌱 Currently, learning Django Framework
 
 
 ## Languages & Tools
