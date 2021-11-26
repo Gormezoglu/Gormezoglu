@@ -7,9 +7,14 @@ I'm MSc student in Information Systems at METU. I love to learn new things daily
 🌱 Currently, learning Django Framework
 
 
-🎹 Electronic Music Producer
-🥁 Drummer
-💰 10 years of experience in finance   
+🎹 Electronic Music Producer  
+
+🥁 Drummer  
+
+💰 10 years of experience in finance  
+   
+
+
 
 
 ## Languages & Tools
