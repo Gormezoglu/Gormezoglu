@@ -7,7 +7,7 @@ I'm Economist and MSc student in Information Systems at METU. I love to learn ne
 🌱 Currently, learning Django Framework
 
 
-🎹 Electronic Music Producer  
+🎹 [Electronic Music Producer](https://soundcloud.com/melih-gor-1)
 
 🥁 Drummer  
 
