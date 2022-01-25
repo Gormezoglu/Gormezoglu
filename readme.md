@@ -19,7 +19,7 @@ I'm Economist and MSc student in Information Systems at METU. I love to learn ne
 
 ## Languages & Tools
 <img align="left" alt="Visual Studio Code" width="26px" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/visual-studio-code/visual-studio-code.png" />
-<img align="left" alt="PyCharm" width="26px" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/pycharm/pycharm.png" />
+<img align="left" alt="PyCharm" width="26px" src="https://images.sftcdn.net/images/t_app-logo-xl,f_auto/p/70869b34-266c-495d-ba57-d11579a82a6a/759479654/pycharm-community-edition-PyCharm_Logo.svg.png" />
 <img align="left" alt="Python" width="26px" src="https://raw.githubusercontent.com/jmnote/z-icons/master/svg/python.svg" />
 <img align="left" alt="Django" width="26px" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/django/django.png" />
 
