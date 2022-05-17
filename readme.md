@@ -2,7 +2,7 @@
 
 #### Life-long Learner from Ankara / Turkey
 
-I'm Economist and MSc student in Information Systems at METU. I love to learn new things daily. Developing skills on data-oriented tasks. 
+I'm an economist and an MSc. student in Information Systems at METU. I love to learn new things daily. Developing skills on data-oriented tasks. 
 
 🌱 Currently, learning Data Engineering
 
