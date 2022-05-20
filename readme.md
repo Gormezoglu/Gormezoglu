@@ -4,7 +4,7 @@
 
 I'm an economist and an MSc. student in Information Systems at METU. I love to learn new things daily. Developing skills on data-oriented tasks. 
 
-🌱 Currently, learning Data Engineering
+🌱 Currently, learning Data Engineering.
 
 
 🎹 [Electronic Music Producer](https://soundcloud.com/melih-gor-1)
