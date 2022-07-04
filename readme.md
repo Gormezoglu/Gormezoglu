@@ -11,7 +11,7 @@ I'm an economist and an MSc. student in Information Systems at METU. I love to l
 
 🥁 Drummer  
 
-💰 10 years of professional experience in Finance  
+💰 10 years of professional experience in Finance.  
    
 
 
