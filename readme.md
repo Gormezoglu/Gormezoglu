@@ -1,17 +1,18 @@
 ### Hi there, I'm Melih 👋
 
-#### Life-long Learner from Ankara / Turkey
+#### Data pincher from Ankara / Turkey
 
-I'm an economist and an MSc. student in Information Systems at METU. I love to learn new things daily. Developing skills on data-oriented tasks. 
+I'm an economist and a graduate of Information Systems at METU. I love to learn new things daily. I am developing skills in data-oriented tasks. 
 
-🌱 Currently, learning Data Engineering.
+🌱 Currently, I work as a Data Engineer.
 
+💰 10 years of professional experience in Finance (2012-2021).  
 
 🎹 [Electronic Music Producer](https://soundcloud.com/melih-gor-1)
 
 🥁 Drummer  
 
-💰 10 years of professional experience in Finance.  
+
    
 
 
