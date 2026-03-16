@@ -65,4 +65,7 @@ I'm an economist and a graduate of Information Systems at METU. I love to learn 
 
 ## GitHub Stats
 
-![Melih's GitHub Stats](https://github-readme-stats.vercel.app/api?username=Gormezoglu&show_icons=true&theme=default&hide_border=true)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=Gormezoglu&show_icons=true&theme=github_dark&hide_border=true">
+  <img src="https://github-readme-stats.vercel.app/api?username=Gormezoglu&show_icons=true&theme=default&hide_border=true">
+</picture>
