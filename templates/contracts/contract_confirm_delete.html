@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Delete Contract — ContractMS{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'contract-list' %}" class="text-decoration-none text-muted small">
+    <i class="bi bi-arrow-left me-1"></i>Back to Contracts
+  </a>
+  <h4 class="fw-bold mt-1 mb-0">Delete Contract</h4>
+</div>
+
+<div class="card shadow-sm border-danger" style="max-width: 520px;">
+  <div class="card-body">
+    <p class="mb-1">Are you sure you want to delete the contract:</p>
+    <p class="fw-semibold fs-5 mb-3">"{{ contract.title }}"</p>
+    <p class="text-muted small mb-4">This action cannot be undone.</p>
+    <form method="post" class="d-flex gap-2">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        <i class="bi bi-trash me-1"></i>Delete
+      </button>
+      <a href="{% url 'contract-list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

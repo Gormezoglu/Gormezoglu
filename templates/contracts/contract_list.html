@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Contracts — ContractMS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0">Contracts</h4>
+  <a href="{% url 'contract-add' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>Add Contract
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-4">{{ filter_form.q }}</div>
+      <div class="col-md-3">{{ filter_form.status }}</div>
+      <div class="col-md-3">{{ filter_form.contract_type }}</div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+        <a href="{% url 'contract-list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    {% if contracts %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Title</th>
+              <th>Party</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Value</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contract in contracts %}
+              <tr>
+                <td>
+                  <a href="{% url 'contract-detail' contract.pk %}" class="fw-semibold text-decoration-none">
+                    {{ contract.title }}
+                  </a>
+                  {% if contract.is_expiring_soon %}
+                    <i class="bi bi-exclamation-triangle-fill text-warning ms-1" title="Expiring soon"></i>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'party-detail' contract.party.pk %}" class="text-decoration-none">
+                    {{ contract.party.name }}
+                  </a>
+                </td>
+                <td><span class="badge bg-secondary">{{ contract.get_contract_type_display }}</span></td>
+                <td>
+                  <span class="badge badge-{{ contract.status }}">{{ contract.get_status_display }}</span>
+                </td>
+                <td>{{ contract.start_date }}</td>
+                <td>
+                  {% if contract.end_date %}
+                    {{ contract.end_date }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if contract.value %}
+                    {{ contract.value|floatformat:2 }} {{ contract.currency }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'contract-edit' contract.pk %}" class="btn btn-sm btn-outline-secondary me-1">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <a href="{% url 'contract-delete' contract.pk %}" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if is_paginated %}
+        <div class="d-flex justify-content-center py-3">
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}">Previous</a>
+                </li>
+              {% endif %}
+              <li class="page-item disabled">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+              </li>
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}">Next</a>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-file-earmark-x fs-1"></i>
+        <p class="mt-2">No contracts found. <a href="{% url 'contract-add' %}">Add the first one.</a></p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

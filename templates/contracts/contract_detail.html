@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}{{ contract.title }} — ContractMS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{% url 'contract-list' %}" class="text-decoration-none text-muted small">
+      <i class="bi bi-arrow-left me-1"></i>Back to Contracts
+    </a>
+    <h4 class="fw-bold mt-1 mb-0">{{ contract.title }}</h4>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'contract-edit' contract.pk %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    <a href="{% url 'contract-delete' contract.pk %}" class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-trash me-1"></i>Delete
+    </a>
+  </div>
+</div>
+
+{% if contract.is_expiring_soon %}
+  <div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    This contract expires in <strong>{{ contract.days_until_expiry }} day{{ contract.days_until_expiry|pluralize }}</strong>.
+  </div>
+{% elif contract.is_overdue %}
+  <div class="alert alert-danger">
+    <i class="bi bi-x-circle-fill me-2"></i>
+    This contract has passed its end date.
+  </div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-3">
+      <div class="card-header bg-white fw-semibold">Contract Details</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Status</dt>
+          <dd class="col-sm-8">
+            <span class="badge badge-{{ contract.status }} fs-6">{{ contract.get_status_display }}</span>
+          </dd>
+          <dt class="col-sm-4">Type</dt>
+          <dd class="col-sm-8">{{ contract.get_contract_type_display }}</dd>
+          <dt class="col-sm-4">Party</dt>
+          <dd class="col-sm-8">
+            <a href="{% url 'party-detail' contract.party.pk %}">{{ contract.party.name }}</a>
+          </dd>
+          <dt class="col-sm-4">Start Date</dt>
+          <dd class="col-sm-8">{{ contract.start_date }}</dd>
+          <dt class="col-sm-4">End Date</dt>
+          <dd class="col-sm-8">{{ contract.end_date|default:"—" }}</dd>
+          <dt class="col-sm-4">Value</dt>
+          <dd class="col-sm-8">
+            {% if contract.value %}{{ contract.value|floatformat:2 }} {{ contract.currency }}{% else %}—{% endif %}
+          </dd>
+          {% if contract.description %}
+            <dt class="col-sm-4">Description</dt>
+            <dd class="col-sm-8">{{ contract.description }}</dd>
+          {% endif %}
+          {% if contract.document %}
+            <dt class="col-sm-4">Document</dt>
+            <dd class="col-sm-8">
+              <a href="{{ contract.document.url }}" target="_blank">
+                <i class="bi bi-file-earmark-arrow-down me-1"></i>Download
+              </a>
+            </dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-semibold">Metadata</div>
+      <div class="card-body">
+        <dl class="row mb-0 small">
+          <dt class="col-6 text-muted">Created by</dt>
+          <dd class="col-6">{{ contract.created_by|default:"—" }}</dd>
+          <dt class="col-6 text-muted">Created</dt>
+          <dd class="col-6">{{ contract.created_at|date:"Y-m-d H:i" }}</dd>
+          <dt class="col-6 text-muted">Last updated</dt>
+          <dd class="col-6">{{ contract.updated_at|date:"Y-m-d H:i" }}</dd>
+          <dt class="col-6 text-muted">Notification</dt>
+          <dd class="col-6">
+            {% if contract.expiry_notification_sent %}
+              <span class="text-success"><i class="bi bi-check-circle me-1"></i>Sent</span>
+            {% else %}
+              <span class="text-muted">Not sent</span>
+            {% endif %}
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
