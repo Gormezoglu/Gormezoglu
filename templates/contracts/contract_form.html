@@ -48,12 +48,22 @@
           {% if form.end_date.errors %}<div class="text-danger small mt-1">{{ form.end_date.errors }}</div>{% endif %}
         </div>
         <div class="col-md-8">
-          <label class="form-label fw-semibold">Value</label>
+          <label class="form-label fw-semibold">Total Value</label>
           {{ form.value }}
         </div>
         <div class="col-md-4">
           <label class="form-label fw-semibold">Currency</label>
           {{ form.currency }}
+        </div>
+        <div class="col-12" id="monthly-payment-row" style="display:none;">
+          <hr class="my-1">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-calendar-month me-1 text-warning"></i>Monthly Payment (Bakım Onarım)
+          </label>
+          {{ form.monthly_payment }}
+          <div class="form-text">
+            Monthly payment amount. A payment record will be created for each month between Start and End Date.
+          </div>
         </div>
         <div class="col-12">
           <label class="form-label fw-semibold">Description</label>
@@ -74,4 +84,17 @@
     </form>
   </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  (function () {
+    const typeSelect = document.getElementById('id_contract_type');
+    const row = document.getElementById('monthly-payment-row');
+    function toggle() {
+      row.style.display = typeSelect.value === 'bakim_onarim' ? '' : 'none';
+    }
+    typeSelect.addEventListener('change', toggle);
+    toggle();
+  })();
+</script>
 {% endblock %}

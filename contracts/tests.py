@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.core import mail
 
 from parties.models import Party, PartyType
-from .models import Contract, ContractStatus, ContractType
+from .models import Contract, ContractStatus, ContractType, ContractPayment, PaymentStatus
 from .forms import ContractForm
 
 
@@ -301,7 +301,8 @@ class ContractCreateViewTests(TestCase):
 
     def test_create_post_success(self):
         resp = self.client.post(reverse('contract-add'), self._post_data())
-        self.assertRedirects(resp, reverse('contract-list'))
+        c = Contract.objects.get(title='New Contract')
+        self.assertRedirects(resp, reverse('contract-detail', args=[c.pk]))
         self.assertTrue(Contract.objects.filter(title='New Contract').exists())
 
     def test_create_sets_created_by(self):
@@ -333,7 +334,7 @@ class ContractUpdateViewTests(TestCase):
             'end_date': datetime.date.today() + datetime.timedelta(days=100),
             'currency': 'EUR',
         })
-        self.assertRedirects(resp, reverse('contract-list'))
+        self.assertRedirects(resp, reverse('contract-detail', args=[self.contract.pk]))
         self.contract.refresh_from_db()
         self.assertEqual(self.contract.title, 'Updated Title')
         self.assertEqual(self.contract.currency, 'EUR')
@@ -479,3 +480,242 @@ class SendExpiryNotificationsCommandTests(TestCase):
         self._run_command()
         c.refresh_from_db()
         self.assertFalse(c.expiry_notification_sent)
+
+# ---------------------------------------------------------------------------
+# ContractPayment model tests
+# ---------------------------------------------------------------------------
+
+def make_bakim_contract(party, months=3, **kwargs):
+    today = datetime.date.today()
+    end = today.replace(day=1)
+    # advance by `months` months
+    month = end.month - 1 + months
+    end = end.replace(year=end.year + month // 12, month=month % 12 + 1)
+    defaults = dict(
+        title='Bakım Contract',
+        contract_type=ContractType.BAKIM_ONARIM,
+        status=ContractStatus.ACTIVE,
+        start_date=today.replace(day=1),
+        end_date=end,
+        monthly_payment='1000.00',
+        currency='TRY',
+    )
+    defaults.update(kwargs)
+    return Contract.objects.create(party=party, **defaults)
+
+
+class ContractPaymentModelTests(TestCase):
+    def setUp(self):
+        self.party = make_party()
+
+    def test_str(self):
+        c = make_bakim_contract(self.party)
+        c.generate_payment_schedule()
+        p = ContractPayment.objects.filter(contract=c).first()
+        self.assertIn(c.title, str(p))
+        self.assertIn('-', str(p))  # period_label contains YYYY-MM
+
+    def test_is_overdue_true(self):
+        c = make_bakim_contract(self.party)
+        p = ContractPayment.objects.create(
+            contract=c,
+            period_label='2020-01',
+            due_date=datetime.date(2020, 1, 1),
+            amount=1000,
+            currency='TRY',
+            status=PaymentStatus.PENDING,
+        )
+        self.assertTrue(p.is_overdue)
+
+    def test_is_overdue_false_paid(self):
+        c = make_bakim_contract(self.party)
+        p = ContractPayment.objects.create(
+            contract=c,
+            period_label='2020-01',
+            due_date=datetime.date(2020, 1, 1),
+            amount=1000,
+            currency='TRY',
+            status=PaymentStatus.PAID,
+        )
+        self.assertFalse(p.is_overdue)
+
+    def test_is_overdue_false_future(self):
+        c = make_bakim_contract(self.party)
+        future = datetime.date.today() + datetime.timedelta(days=30)
+        p = ContractPayment.objects.create(
+            contract=c,
+            period_label=future.strftime('%Y-%m'),
+            due_date=future,
+            amount=1000,
+            currency='TRY',
+        )
+        self.assertFalse(p.is_overdue)
+
+
+class GeneratePaymentScheduleTests(TestCase):
+    def setUp(self):
+        self.party = make_party()
+
+    def test_generates_correct_number_of_payments(self):
+        today = datetime.date.today().replace(day=1)
+        end = today.replace(month=today.month + 2) if today.month <= 10 else \
+              today.replace(year=today.year + 1, month=(today.month + 2) % 12 or 12)
+        c = make_bakim_contract(self.party, end_date=end)
+        n = c.generate_payment_schedule()
+        self.assertGreater(n, 0)
+        self.assertEqual(ContractPayment.objects.filter(contract=c).count(), n)
+
+    def test_does_not_duplicate_paid_payments(self):
+        c = make_bakim_contract(self.party)
+        c.generate_payment_schedule()
+        # Mark first payment as paid
+        first = ContractPayment.objects.filter(contract=c).order_by('due_date').first()
+        first.status = PaymentStatus.PAID
+        first.save()
+        paid_period = first.period_label
+        # Regenerate
+        c.generate_payment_schedule()
+        # Paid payment must still exist and be unique
+        self.assertEqual(ContractPayment.objects.filter(contract=c, period_label=paid_period).count(), 1)
+        self.assertEqual(ContractPayment.objects.get(contract=c, period_label=paid_period).status, PaymentStatus.PAID)
+
+    def test_no_payments_for_non_bakim(self):
+        c = make_contract(self.party)
+        n = c.generate_payment_schedule()
+        self.assertEqual(n, 0)
+        self.assertEqual(ContractPayment.objects.filter(contract=c).count(), 0)
+
+    def test_no_payments_without_monthly_amount(self):
+        c = make_bakim_contract(self.party, monthly_payment=None)
+        n = c.generate_payment_schedule()
+        self.assertEqual(n, 0)
+
+    def test_unique_period_labels(self):
+        c = make_bakim_contract(self.party)
+        c.generate_payment_schedule()
+        c.generate_payment_schedule()  # second call should not create duplicates
+        periods = list(ContractPayment.objects.filter(contract=c).values_list('period_label', flat=True))
+        self.assertEqual(len(periods), len(set(periods)))
+
+    def test_create_view_auto_generates_schedule(self):
+        client = Client()
+        user = User.objects.create_user(username='u', password='p')
+        client.login(username='u', password='p')
+        today = datetime.date.today().replace(day=1)
+        end = today.replace(month=today.month + 1) if today.month < 12 else \
+              today.replace(year=today.year + 1, month=1)
+        resp = client.post(reverse('contract-add'), {
+            'title': 'Auto Schedule',
+            'contract_type': ContractType.BAKIM_ONARIM,
+            'status': ContractStatus.ACTIVE,
+            'party': self.party.pk,
+            'start_date': today,
+            'end_date': end,
+            'monthly_payment': '2500.00',
+            'currency': 'TRY',
+        })
+        c = Contract.objects.get(title='Auto Schedule')
+        self.assertGreater(ContractPayment.objects.filter(contract=c).count(), 0)
+
+
+class PaymentMarkPaidViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.party = make_party()
+        self.client.login(username='testuser', password='testpass')
+        self.contract = make_bakim_contract(self.party)
+        self.contract.generate_payment_schedule()
+        self.payment = ContractPayment.objects.filter(contract=self.contract).first()
+
+    def test_requires_login(self):
+        self.client.logout()
+        resp = self.client.post(reverse('payment-pay', args=[self.payment.pk]))
+        self.assertEqual(resp.status_code, 302)
+
+    def test_mark_paid(self):
+        resp = self.client.post(reverse('payment-pay', args=[self.payment.pk]))
+        self.assertRedirects(resp, reverse('contract-detail', args=[self.contract.pk]))
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, PaymentStatus.PAID)
+        self.assertEqual(self.payment.paid_date, datetime.date.today())
+        self.assertEqual(self.payment.paid_by, self.user)
+
+    def test_mark_paid_with_notes(self):
+        self.client.post(reverse('payment-pay', args=[self.payment.pk]), {'notes': 'Wire transfer'})
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.notes, 'Wire transfer')
+
+    def test_cannot_pay_already_paid(self):
+        self.payment.status = PaymentStatus.PAID
+        self.payment.save()
+        self.client.post(reverse('payment-pay', args=[self.payment.pk]))
+        # Status should remain PAID (not re-processed)
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, PaymentStatus.PAID)
+
+
+class PaymentCancelViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.party = make_party()
+        self.client.login(username='testuser', password='testpass')
+        self.contract = make_bakim_contract(self.party)
+        self.contract.generate_payment_schedule()
+        self.payment = ContractPayment.objects.filter(contract=self.contract).first()
+
+    def test_cancel_pending(self):
+        resp = self.client.post(reverse('payment-cancel', args=[self.payment.pk]))
+        self.assertRedirects(resp, reverse('contract-detail', args=[self.contract.pk]))
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, PaymentStatus.CANCELLED)
+
+    def test_cannot_cancel_paid(self):
+        self.payment.status = PaymentStatus.PAID
+        self.payment.save()
+        self.client.post(reverse('payment-cancel', args=[self.payment.pk]))
+        self.payment.refresh_from_db()
+        self.assertEqual(self.payment.status, PaymentStatus.PAID)
+
+
+class PaymentOverviewViewTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.party = make_party()
+        self.client.login(username='testuser', password='testpass')
+
+    def test_requires_login(self):
+        self.client.logout()
+        resp = self.client.get(reverse('payment-overview'))
+        self.assertEqual(resp.status_code, 302)
+
+    def test_overdue_tab(self):
+        c = make_bakim_contract(self.party)
+        ContractPayment.objects.create(
+            contract=c, period_label='2020-01',
+            due_date=datetime.date(2020, 1, 1),
+            amount=1000, currency='TRY', status=PaymentStatus.PENDING,
+        )
+        resp = self.client.get(reverse('payment-overview') + '?tab=overdue')
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '2020-01')
+
+    def test_paid_tab(self):
+        c = make_bakim_contract(self.party)
+        ContractPayment.objects.create(
+            contract=c, period_label='2024-01',
+            due_date=datetime.date(2024, 1, 1),
+            amount=1000, currency='TRY', status=PaymentStatus.PAID,
+            paid_date=datetime.date(2024, 1, 5),
+        )
+        resp = self.client.get(reverse('payment-overview') + '?tab=paid')
+        self.assertContains(resp, '2024-01')
+
+    def test_contract_detail_shows_payment_schedule(self):
+        c = make_bakim_contract(self.party)
+        c.generate_payment_schedule()
+        resp = self.client.get(reverse('contract-detail', args=[c.pk]))
+        self.assertContains(resp, 'Monthly Payment Schedule')
+        self.assertContains(resp, 'Bekliyor')

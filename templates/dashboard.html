@@ -87,6 +87,16 @@
   </div>
 </div>
 
+{% if overdue_payment_count %}
+<div class="alert alert-danger d-flex align-items-center justify-content-between py-2 mb-3">
+  <span>
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>{{ overdue_payment_count }}</strong> overdue Bakım Onarım payment{{ overdue_payment_count|pluralize }} need attention.
+  </span>
+  <a href="{% url 'payment-overview' %}?tab=overdue" class="btn btn-sm btn-danger">View</a>
+</div>
+{% endif %}
+
 <div class="row g-3">
   <!-- Expiring Soon -->
   <div class="col-lg-6">

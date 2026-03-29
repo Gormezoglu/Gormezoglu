@@ -7,19 +7,20 @@ class ContractForm(forms.ModelForm):
         model = Contract
         fields = [
             'title', 'description', 'contract_type', 'status',
-            'party', 'start_date', 'end_date', 'value', 'currency', 'document',
+            'party', 'start_date', 'end_date', 'value', 'monthly_payment', 'currency', 'document',
         ]
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'contract_type': forms.Select(attrs={'class': 'form-select'}),
-            'status': forms.Select(attrs={'class': 'form-select'}),
-            'party': forms.Select(attrs={'class': 'form-select'}),
-            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'value': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'currency': forms.TextInput(attrs={'class': 'form-control', 'maxlength': '3'}),
-            'document': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'title':           forms.TextInput(attrs={'class': 'form-control'}),
+            'description':     forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'contract_type':   forms.Select(attrs={'class': 'form-select', 'id': 'id_contract_type'}),
+            'status':          forms.Select(attrs={'class': 'form-select'}),
+            'party':           forms.Select(attrs={'class': 'form-select'}),
+            'start_date':      forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'end_date':        forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'value':           forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'monthly_payment': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'currency':        forms.TextInput(attrs={'class': 'form-control', 'maxlength': '3'}),
+            'document':        forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
     def clean(self):

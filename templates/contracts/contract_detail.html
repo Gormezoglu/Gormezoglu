@@ -64,6 +64,14 @@
           <dd class="col-sm-8">
             {% if contract.value %}{{ contract.value|floatformat:2 }} {{ contract.currency }}{% else %}—{% endif %}
           </dd>
+          {% if contract.is_bakim_onarim %}
+          <dt class="col-sm-4">Monthly Payment</dt>
+          <dd class="col-sm-8">
+            {% if contract.monthly_payment %}
+              <strong>{{ contract.monthly_payment|floatformat:2 }} {{ contract.currency }}</strong>
+            {% else %}—{% endif %}
+          </dd>
+          {% endif %}
           {% if contract.description %}
             <dt class="col-sm-4">Description</dt>
             <dd class="col-sm-8">{{ contract.description }}</dd>
@@ -105,4 +113,95 @@
     </div>
   </div>
 </div>
+
+{% if contract.is_bakim_onarim %}
+<div class="row g-3 mt-1">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">
+          <i class="bi bi-calendar-month me-2 text-warning"></i>Monthly Payment Schedule
+        </span>
+        {% if payment_stats %}
+          <div class="d-flex gap-2 small">
+            <span class="badge bg-success">{{ payment_stats.paid }} paid</span>
+            <span class="badge bg-danger">{{ payment_stats.overdue }} overdue</span>
+            <span class="badge bg-secondary">{{ payment_stats.pending }} pending</span>
+          </div>
+        {% endif %}
+      </div>
+      <div class="card-body p-0">
+        {% if payments %}
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Period</th>
+                  <th>Due Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Paid On</th>
+                  <th>Paid By</th>
+                  <th>Notes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in payments %}
+                  <tr class="{% if p.is_overdue %}table-danger{% elif p.status == 'paid' %}table-success{% endif %}">
+                    <td class="fw-semibold">{{ p.period_label }}</td>
+                    <td>{{ p.due_date }}</td>
+                    <td>{{ p.amount|floatformat:2 }} {{ p.currency }}</td>
+                    <td>
+                      {% if p.status == 'paid' %}
+                        <span class="badge bg-success">Ödendi</span>
+                      {% elif p.is_overdue %}
+                        <span class="badge bg-danger">Gecikmiş</span>
+                      {% elif p.status == 'cancelled' %}
+                        <span class="badge bg-secondary">İptal</span>
+                      {% else %}
+                        <span class="badge bg-warning text-dark">Bekliyor</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ p.paid_date|default:"—" }}</td>
+                    <td class="text-muted small">{{ p.paid_by|default:"—" }}</td>
+                    <td class="text-muted small">{{ p.notes|default:"—"|truncatechars:30 }}</td>
+                    <td class="text-end">
+                      {% if p.status == 'pending' or p.is_overdue %}
+                        <form method="post" action="{% url 'payment-pay' p.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-xs btn-success btn-sm py-0 px-2"
+                                  title="Mark as paid">
+                            <i class="bi bi-check-lg"></i>
+                          </button>
+                        </form>
+                        <form method="post" action="{% url 'payment-cancel' p.pk %}" class="d-inline ms-1">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-xs btn-outline-secondary btn-sm py-0 px-2"
+                                  title="Cancel" onclick="return confirm('Cancel this payment?')">
+                            <i class="bi bi-x"></i>
+                          </button>
+                        </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-calendar-x fs-3"></i>
+            <p class="mt-2 mb-0 small">No payment schedule yet.
+              {% if not contract.monthly_payment %}
+                Set a <a href="{% url 'contract-edit' contract.pk %}">monthly payment amount</a> to generate one.
+              {% endif %}
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}

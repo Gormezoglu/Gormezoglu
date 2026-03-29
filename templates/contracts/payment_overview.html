@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Payments — ContractMS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0"><i class="bi bi-calendar-month me-2 text-warning"></i>Bakım Onarım Payments</h4>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'overdue' %}active{% endif %}"
+       href="?tab=overdue">
+      Overdue <span class="badge bg-danger ms-1">{{ overdue_count }}</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'upcoming' %}active{% endif %}"
+       href="?tab=upcoming">
+      Upcoming (30 days) <span class="badge bg-warning text-dark ms-1">{{ upcoming_count }}</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'paid' %}active{% endif %}"
+       href="?tab=paid">
+      Paid <span class="badge bg-success ms-1">{{ paid_count }}</span>
+    </a>
+  </li>
+</ul>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    {% if payments %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Contract</th>
+              <th>Party</th>
+              <th>Period</th>
+              <th>Due Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Paid On</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in payments %}
+              <tr class="{% if p.is_overdue %}table-danger{% elif p.status == 'paid' %}table-success{% endif %}">
+                <td>
+                  <a href="{% url 'contract-detail' p.contract.pk %}" class="fw-semibold text-decoration-none">
+                    {{ p.contract.title }}
+                  </a>
+                </td>
+                <td class="text-muted small">{{ p.contract.party.name }}</td>
+                <td>{{ p.period_label }}</td>
+                <td>{{ p.due_date }}</td>
+                <td>{{ p.amount|floatformat:2 }} {{ p.currency }}</td>
+                <td>
+                  {% if p.status == 'paid' %}<span class="badge bg-success">Ödendi</span>
+                  {% elif p.is_overdue %}<span class="badge bg-danger">Gecikmiş</span>
+                  {% elif p.status == 'cancelled' %}<span class="badge bg-secondary">İptal</span>
+                  {% else %}<span class="badge bg-warning text-dark">Bekliyor</span>
+                  {% endif %}
+                </td>
+                <td>{{ p.paid_date|default:"—" }}</td>
+                <td class="text-end">
+                  {% if p.status == 'pending' or p.is_overdue %}
+                    <form method="post" action="{% url 'payment-pay' p.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-success py-0 px-2" title="Mark as paid">
+                        <i class="bi bi-check-lg"></i> Pay
+                      </button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if is_paginated %}
+        <div class="d-flex justify-content-center py-3">
+          <nav><ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+              <li class="page-item"><a class="page-link" href="?tab={{ tab }}&page={{ page_obj.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+              <li class="page-item"><a class="page-link" href="?tab={{ tab }}&page={{ page_obj.next_page_number }}">Next</a></li>
+            {% endif %}
+          </ul></nav>
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-check-circle fs-1 text-success"></i>
+        <p class="mt-2">No payments in this category.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

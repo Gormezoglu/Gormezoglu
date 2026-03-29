@@ -88,6 +88,11 @@
         <i class="bi bi-people me-2"></i>Parties
       </a>
     </li>
+    <li class="nav-item">
+      <a href="{% url 'payment-overview' %}" class="nav-link {% if 'payment' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-calendar-month me-2"></i>Payments
+      </a>
+    </li>
   </ul>
   <div class="mt-auto p-3" style="border-top: 1px solid rgba(255,255,255,0.1);">
     <small class="d-block mb-2 text-muted">{{ user.username }}</small>
