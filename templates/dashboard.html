@@ -4,6 +4,34 @@
 <h4 class="fw-bold mb-4">Dashboard</h4>
 
 <!-- Stat Cards -->
+<!-- Proposal quick-stats -->
+<div class="row g-2 mb-3">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body py-2 d-flex gap-4 flex-wrap align-items-center">
+        <span class="fw-semibold text-muted small"><i class="bi bi-file-earmark-plus me-1"></i>Proposals</span>
+        <a href="{% url 'proposal-list' %}?status=draft" class="text-decoration-none">
+          <span class="badge bg-secondary">{{ draft_proposals }} Draft</span>
+        </a>
+        <a href="{% url 'proposal-list' %}?status=sent" class="text-decoration-none">
+          <span class="badge bg-primary">{{ sent_proposals }} Sent</span>
+        </a>
+        <a href="{% url 'proposal-list' %}?status=accepted" class="text-decoration-none">
+          <span class="badge bg-success">{{ accepted_proposals }} Accepted</span>
+        </a>
+        <a href="{% url 'proposal-list' %}?status=rejected" class="text-decoration-none">
+          <span class="badge bg-danger">{{ rejected_proposals }} Rejected</span>
+        </a>
+        <span class="ms-auto">
+          <a href="{% url 'proposal-add' %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-plus-lg me-1"></i>New Proposal
+          </a>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row g-3 mb-4">
   <div class="col-sm-6 col-xl-3">
     <div class="card stat-card bg-primary text-white">

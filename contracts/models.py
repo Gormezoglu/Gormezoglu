@@ -36,6 +36,12 @@ class Contract(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     expiry_notification_sent = models.BooleanField(default=False)
+    source_proposal = models.OneToOneField(
+        'proposals.Proposal',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='contract',
+    )
 
     class Meta:
         ordering = ['-created_at']

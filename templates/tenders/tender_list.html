@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Tenders — ContractMS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0">Tenders (İhaleler)</h4>
+  <a href="{% url 'tender-add' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>New Tender
+  </a>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-5">
+        <input type="text" name="q" class="form-control form-control-sm"
+               placeholder="Search tenders..." value="{{ search_query }}">
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All Statuses</option>
+          {% for val, label in status_choices %}
+            <option value="{{ val }}" {% if val == selected_status %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+        <a href="{% url 'tender-list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    {% if tenders %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Title</th>
+              <th>Party</th>
+              <th>Status</th>
+              <th>Deadline</th>
+              <th>Value</th>
+              <th>Source</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in tenders %}
+              <tr>
+                <td>
+                  <a href="{% url 'tender-detail' t.pk %}" class="fw-semibold text-decoration-none">{{ t.title }}</a>
+                  {% if t.is_overdue %}<i class="bi bi-exclamation-triangle-fill text-warning ms-1" title="Deadline passed"></i>{% endif %}
+                </td>
+                <td><a href="{% url 'party-detail' t.party.pk %}" class="text-decoration-none">{{ t.party.name }}</a></td>
+                <td>
+                  {% if t.status == 'open' %}<span class="badge bg-primary">{{ t.get_status_display }}</span>
+                  {% elif t.status == 'evaluation' %}<span class="badge bg-warning text-dark">{{ t.get_status_display }}</span>
+                  {% elif t.status == 'awarded' %}<span class="badge bg-success">{{ t.get_status_display }}</span>
+                  {% else %}<span class="badge bg-secondary">{{ t.get_status_display }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ t.deadline|default:"—" }}</td>
+                <td>{% if t.value %}{{ t.value|floatformat:0 }} {{ t.currency }}{% else %}—{% endif %}</td>
+                <td>
+                  {% if t.source_proposal %}
+                    <a href="{% url 'proposal-detail' t.source_proposal.pk %}" class="text-decoration-none small">
+                      <i class="bi bi-link-45deg"></i> Proposal
+                    </a>
+                  {% else %}—{% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'tender-edit' t.pk %}" class="btn btn-sm btn-outline-secondary me-1"><i class="bi bi-pencil"></i></a>
+                  <a href="{% url 'tender-delete' t.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-trophy fs-1"></i>
+        <p class="mt-2">No tenders found. <a href="{% url 'tender-add' %}">Add one</a> or accept an İhale proposal.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

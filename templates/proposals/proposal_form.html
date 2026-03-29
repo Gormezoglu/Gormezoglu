@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Proposal — ContractMS{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'proposal-list' %}" class="text-decoration-none text-muted small">
+    <i class="bi bi-arrow-left me-1"></i>Back to Proposals
+  </a>
+  <h4 class="fw-bold mt-1 mb-0">{{ action }} Proposal</h4>
+</div>
+
+<div class="card shadow-sm" style="max-width: 760px;">
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">Title *</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Proposal Type *</label>
+          {{ form.proposal_type }}
+          <div class="form-text">
+            <i class="bi bi-info-circle me-1"></i>
+            <strong>İhale</strong> → creates a Tender on acceptance. All others → create a Contract.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Party *</label>
+          {{ form.party }}
+          <div class="form-text"><a href="{% url 'party-add' %}" target="_blank">Add a new party</a></div>
+        </div>
+        <div class="col-md-8">
+          <label class="form-label fw-semibold">Value</label>
+          {{ form.value }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Currency</label>
+          {{ form.currency }}
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Description</label>
+          {{ form.description }}
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Document</label>
+          {{ form.document }}
+        </div>
+        {% if show_revision_note %}
+        <div class="col-12">
+          <hr>
+          <label class="form-label fw-semibold">Revision Note</label>
+          {{ form.revision_note }}
+          <div class="form-text">This note will appear in the revision history.</div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-check-lg me-1"></i>
+          {% if show_revision_note %}Save Revision{% else %}Create Proposal{% endif %}
+        </button>
+        <a href="{% url 'proposal-list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

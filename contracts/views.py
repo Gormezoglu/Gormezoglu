@@ -30,6 +30,11 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx['total_value'] = Contract.objects.filter(
             status=ContractStatus.ACTIVE
         ).aggregate(total=Sum('value'))['total'] or 0
+        from proposals.models import Proposal, ProposalStatus as PS
+        ctx['draft_proposals']    = Proposal.objects.filter(status=PS.DRAFT).count()
+        ctx['sent_proposals']     = Proposal.objects.filter(status=PS.SENT).count()
+        ctx['accepted_proposals'] = Proposal.objects.filter(status=PS.ACCEPTED).count()
+        ctx['rejected_proposals'] = Proposal.objects.filter(status=PS.REJECTED).count()
         ctx['recent_contracts'] = Contract.objects.select_related('party').order_by('-created_at')[:5]
         ctx['expiring_contracts'] = Contract.objects.filter(
             status=ContractStatus.ACTIVE,

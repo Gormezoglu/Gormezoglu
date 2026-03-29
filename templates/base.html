@@ -69,8 +69,18 @@
       </a>
     </li>
     <li class="nav-item">
+      <a href="{% url 'proposal-list' %}" class="nav-link {% if 'proposal' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-file-earmark-plus me-2"></i>Proposals
+      </a>
+    </li>
+    <li class="nav-item">
       <a href="{% url 'contract-list' %}" class="nav-link {% if 'contract' in request.resolver_match.url_name %}active{% endif %}">
         <i class="bi bi-file-earmark-text me-2"></i>Contracts
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'tender-list' %}" class="nav-link {% if 'tender' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-trophy me-2"></i>Tenders
       </a>
     </li>
     <li class="nav-item">
@@ -87,8 +97,11 @@
   </div>
 </nav>
 <div class="topbar">
-  <a href="{% url 'contract-add' %}" class="btn btn-primary btn-sm">
-    <i class="bi bi-plus-lg me-1"></i>New Contract
+  <a href="{% url 'proposal-add' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>New Proposal
+  </a>
+  <a href="{% url 'contract-add' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-file-earmark-text me-1"></i>New Contract
   </a>
   <a href="{% url 'party-add' %}" class="btn btn-outline-secondary btn-sm">
     <i class="bi bi-person-plus me-1"></i>New Party

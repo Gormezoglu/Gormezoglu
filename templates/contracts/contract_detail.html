@@ -18,6 +18,16 @@
   </div>
 </div>
 
+{% if contract.source_proposal %}
+  <div class="alert alert-info d-flex align-items-center gap-2 py-2">
+    <i class="bi bi-link-45deg fs-5"></i>
+    <span>Created from proposal:
+      <a href="{% url 'proposal-detail' contract.source_proposal.pk %}" class="fw-semibold">
+        {{ contract.source_proposal.title }} (v{{ contract.source_proposal.current_version }})
+      </a>
+    </span>
+  </div>
+{% endif %}
 {% if contract.is_expiring_soon %}
   <div class="alert alert-warning">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>

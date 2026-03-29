@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}{{ tender.title }} — ContractMS{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{% url 'tender-list' %}" class="text-decoration-none text-muted small">
+      <i class="bi bi-arrow-left me-1"></i>Back to Tenders
+    </a>
+    <h4 class="fw-bold mt-1 mb-0">{{ tender.title }}</h4>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'tender-edit' tender.pk %}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    <a href="{% url 'tender-delete' tender.pk %}" class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-trash"></i>
+    </a>
+  </div>
+</div>
+
+{% if tender.source_proposal %}
+  <div class="alert alert-info d-flex align-items-center gap-2 py-2">
+    <i class="bi bi-link-45deg fs-5"></i>
+    <span>Created from proposal:
+      <a href="{% url 'proposal-detail' tender.source_proposal.pk %}" class="fw-semibold">
+        {{ tender.source_proposal.title }} (v{{ tender.source_proposal.current_version }})
+      </a>
+    </span>
+  </div>
+{% endif %}
+
+{% if tender.is_overdue %}
+  <div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>Tender deadline has passed.
+  </div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-semibold">Tender Details</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Status</dt>
+          <dd class="col-sm-8">
+            {% if tender.status == 'open' %}<span class="badge bg-primary fs-6">{{ tender.get_status_display }}</span>
+            {% elif tender.status == 'evaluation' %}<span class="badge bg-warning text-dark fs-6">{{ tender.get_status_display }}</span>
+            {% elif tender.status == 'awarded' %}<span class="badge bg-success fs-6">{{ tender.get_status_display }}</span>
+            {% else %}<span class="badge bg-secondary fs-6">{{ tender.get_status_display }}</span>
+            {% endif %}
+          </dd>
+          <dt class="col-sm-4">Party</dt>
+          <dd class="col-sm-8"><a href="{% url 'party-detail' tender.party.pk %}">{{ tender.party.name }}</a></dd>
+          <dt class="col-sm-4">Deadline</dt>
+          <dd class="col-sm-8">{{ tender.deadline|default:"—" }}</dd>
+          <dt class="col-sm-4">Value</dt>
+          <dd class="col-sm-8">{% if tender.value %}{{ tender.value|floatformat:2 }} {{ tender.currency }}{% else %}—{% endif %}</dd>
+          {% if tender.awarded_to %}
+            <dt class="col-sm-4">Awarded to</dt>
+            <dd class="col-sm-8 fw-semibold text-success">{{ tender.awarded_to }}</dd>
+          {% endif %}
+          {% if tender.description %}
+            <dt class="col-sm-4">Description</dt>
+            <dd class="col-sm-8">{{ tender.description }}</dd>
+          {% endif %}
+          {% if tender.notes %}
+            <dt class="col-sm-4">Notes</dt>
+            <dd class="col-sm-8">{{ tender.notes }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-semibold">Metadata</div>
+      <div class="card-body">
+        <dl class="row mb-0 small">
+          <dt class="col-6 text-muted">Created by</dt>
+          <dd class="col-6">{{ tender.created_by|default:"—" }}</dd>
+          <dt class="col-6 text-muted">Created</dt>
+          <dd class="col-6">{{ tender.created_at|date:"Y-m-d H:i" }}</dd>
+          <dt class="col-6 text-muted">Last updated</dt>
+          <dd class="col-6">{{ tender.updated_at|date:"Y-m-d H:i" }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

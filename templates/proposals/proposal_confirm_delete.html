@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Delete Proposal — ContractMS{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'proposal-list' %}" class="text-decoration-none text-muted small">
+    <i class="bi bi-arrow-left me-1"></i>Back to Proposals
+  </a>
+  <h4 class="fw-bold mt-1 mb-0">Delete Proposal</h4>
+</div>
+<div class="card shadow-sm border-danger" style="max-width: 520px;">
+  <div class="card-body">
+    <p class="mb-1">Are you sure you want to delete this proposal and all its revisions?</p>
+    <p class="fw-semibold fs-5 mb-3">"{{ proposal.title }}"</p>
+    {% if proposal.status == 'accepted' %}
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        This proposal has been accepted and promoted to a contract or tender. Deleting it will remove the link but not the contract/tender.
+      </div>
+    {% endif %}
+    <form method="post" class="d-flex gap-2">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Delete</button>
+      <a href="{% url 'proposal-list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

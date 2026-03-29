@@ -9,4 +9,6 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('contracts.urls')),
     path('parties/', include('parties.urls')),
+    path('proposals/', include('proposals.urls')),
+    path('tenders/', include('tenders.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
